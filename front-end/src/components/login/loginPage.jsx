@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,21 +25,20 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // 🔥 Call your backend API
-      const res = await api.post("/customers/login", {
-        email,
-        password,
-      });
+      const res = await api.post("/customers/login", { email, password });
+      const { token, user } = res.data;
 
-      // Example: API returns { token, user }
-      localStorage.setItem("token", res.data.token);
+      // store token + user
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // redirect to dashboard (or homepage)
-      router.push("/");
+      toast.success("Login Successfully!");
+      router.push("/"); // redirect to homepage
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
     }
   };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">

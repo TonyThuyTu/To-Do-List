@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { login as saveToken } from "@/utils/auth"; // use auth.js helper
+import { login as saveToken } from "@/utils/auth"; 
+import { toast } from "react-toastify";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -14,18 +15,15 @@ export default function SignupPage() {
   const [nickname, setNickName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!firstname || !lastname || !nickname || !email || !password) {
-      setError("Please fill in all fields.");
+      toast.error("Please fill in all fields.");
       return;
     }
-
-    setError("");
 
     try {
       const res = await api.post("/customers/signup", {
@@ -36,12 +34,12 @@ export default function SignupPage() {
         password,
       });
 
-      // Save token using auth.js
       saveToken(res.data.token);
 
-      router.push("/"); // redirect to home
+      toast.success("Sign Up Successfully!");
+      router.push("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "Signup failed. Please try again.");
+      toast.error(err.response?.data?.message || "Signup failed. Please try again.");
     }
   };
 
@@ -55,11 +53,7 @@ export default function SignupPage() {
           Sign Up
         </h2>
 
-        {error && (
-          <div className="bg-red-600 text-white p-2 mb-4 rounded">{error}</div>
-        )}
-
-        {/* Name fields */}
+        {/* First Name */}
         <div className="mb-4">
           <label className="block text-gray-300 mb-1">First Name</label>
           <input
@@ -71,6 +65,7 @@ export default function SignupPage() {
           />
         </div>
 
+        {/* Last Name */}
         <div className="mb-4">
           <label className="block text-gray-300 mb-1">Last Name</label>
           <input
@@ -82,6 +77,7 @@ export default function SignupPage() {
           />
         </div>
 
+        {/* Nickname */}
         <div className="mb-4">
           <label className="block text-gray-300 mb-1">Nickname</label>
           <input
@@ -126,7 +122,7 @@ export default function SignupPage() {
           </div>
         </div>
 
-        {/* Submit button */}
+        {/* Submit */}
         <button
           type="submit"
           className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition"
@@ -134,13 +130,12 @@ export default function SignupPage() {
           Sign Up
         </button>
 
-        {/* Footer */}
-        {/* <p className="text-center mt-4 text-gray-400">
+        <p className="text-center mt-4 text-gray-400">
           Already have an account?{" "}
           <Link href="/login" className="text-blue-400 hover:underline">
             Login
           </Link>
-        </p> */}
+        </p>
       </form>
     </div>
   );
